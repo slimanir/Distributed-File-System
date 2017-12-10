@@ -3,15 +3,17 @@ import logging
 import os
 import shelve
 import web
+import utils
 
 ############## Responsible of mapping file servers and directories  ################
 
 class directoryServer:
 
-    ############### The server that holds the directory   ####################
+############### The server that holds the directory   ####################
 
     def GET(self, filepath):
-
+        
+############ Return a server which has the directory where the filepath is located #########
 
         web.header('Content-Type', 'text/plain; charset=UTF-8')
         filepath = str(filepath)
@@ -28,17 +30,20 @@ class directoryServer:
         raise web.notfound('No file server serve this file.')
 
     
+########### POST = Update when 'add' is 'True' ############## 
 
     def POST(self, dirpath):
-
-
         return _update(str(dirpath))
+    
+########### DELETE = Update when 'add' is 'True' ##############
 
-
-
+    def DELETE(self, dirpath):
+        
+        return _update(str(dirpath), False)
+    
+######### Adding a pair of directory/server with to the directoryserver ########
+    
 def _update(dirpath, add=True):
-
-
     web.header('Content-Type', 'text/plain; charset=UTF-8')
     i = web.input()
 
@@ -65,9 +70,7 @@ def _update(dirpath, add=True):
             _update_names(dirpath, srv, add)
         except ValueError as e:
             logging.exception(e)
-
-
-
+####### Update the name dictionnary and the database #########    
 def _update_names(dirpath, srv, add=True):
 
 
@@ -92,6 +95,7 @@ _config = {
          }
 
 logging.info('Loading config file directoryServer.dfs.json.')
+utils.load_config(_config, 'directoryServer.dfs.json')
 _names = shelve.open(_config['dbfile'])
 
 atexit.register(lambda: _names.close())
