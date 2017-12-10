@@ -64,7 +64,7 @@ class File(SpooledTemporaryFile):
         self.flush()
 
         if 'c' not in self.mode:
-            self.close()
+            SpooledTemporaryFile.close(self)
 
     def flush(self):
 
