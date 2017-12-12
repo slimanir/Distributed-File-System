@@ -175,7 +175,7 @@ class SimpleHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         i = web.input()
         host, port = utils.get_host_port(_config['lockserver'])
         if utils.is_locked(filepath, host, port, i.get('lock_id', None)):
-        raise web.unauthorized()  
+            raise web.unauthorized()  
       
     def translate_path(self, path):
 
