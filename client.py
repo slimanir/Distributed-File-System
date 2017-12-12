@@ -1,6 +1,6 @@
 import utils
 from contextlib import closing
-from httplib import HTTPConnection
+from http.client import HTTPConnection
 from tempfile import SpooledTemporaryFile
 
 
