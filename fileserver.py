@@ -7,6 +7,7 @@ import shutil
 import mimetypes
 import re
 from io import BytesIO
+import utils 
  
  
 class SimpleHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
@@ -169,7 +170,13 @@ class SimpleHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(length))
         self.end_headers()
         return f
- 
+       
+    def _raise_if_locked(filepath):
+        i = web.input()
+        host, port = utils.get_host_port(_config['lockserver'])
+        if utils.is_locked(filepath, host, port, i.get('lock_id', None)):
+        raise web.unauthorized()  
+      
     def translate_path(self, path):
 
         path = path.split('?',1)[0]
@@ -210,7 +217,26 @@ class SimpleHTTPRequestHandler(http.server.BaseHTTPRequestHandler):
         '.h': 'text/plain',
         })
  
- 
+def _init_file_server():
+
+    host, port = utils.get_host_port(_config['directoryserver'])
+    with closing(HTTPConnection(host, port)) as con:
+        data = 'srv=%s&dirs=%s' % (_config['srv'],
+                                '\n'.join(_config['directories']),)
+        con.request('POST', '/', data)
+
+
+_config = {
+        'lockserver': None,
+        'directoryserver': None,
+        'directories': [],
+        'fsroot': 'fs/',
+        'srv': None,
+        }
+
+logging.info('Loading config file fileserver.dfs.json.')
+utils.load_config(_config, 'fileserver.dfs.json') 
+
 def test(HandlerClass = SimpleHTTPRequestHandler,
          ServerClass = http.server.HTTPServer):
     http.server.test(HandlerClass, ServerClass)
