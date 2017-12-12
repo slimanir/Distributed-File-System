@@ -1,7 +1,7 @@
 import json
 import os.path
 from contextlib import closing
-from httplib import HTTPConnection
+from http.client import HTTPConnection
 
 
 class memoize:
