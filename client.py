@@ -4,7 +4,11 @@ from http.client import HTTPConnection
 from tempfile import SpooledTemporaryFile
 
 
+####### Is a distant file, it's stored in memory if it size if less than the max_size parameter, otherwise it's stored on the disk #####
+
 class File(SpooledTemporaryFile):
+    
+###### filepath: the path of the distant file mode: take the same argument as mode argument of the global open() + optional flag c (which mean store in cache) #####
 
     def __init__(self, filepath, mode='rtc'):
 
@@ -42,6 +46,7 @@ class File(SpooledTemporaryFile):
                     self.seek(0)
 
                 self.lock_id = None
+ ####### Automatically gets a lock if we're in write/append mode ######
 
         if 'a' in mode or 'w' in mode:
             host, port = utils.get_host_port(_config['lockserver'])
@@ -49,7 +54,7 @@ class File(SpooledTemporaryFile):
 
         if 'c' in mode:
             File._cache[filepath] = self
-
+#############  Close the file  ###############
     def __exit__(self, exc, value, tb):
 
         self.close()
@@ -65,12 +70,13 @@ class File(SpooledTemporaryFile):
 
         if 'c' not in self.mode:
             SpooledTemporaryFile.close(self)
-
+#####  Flush the data to the server ######
     def flush(self):
 
         SpooledTemporaryFile.flush(self)
         self.commit()
-
+       
+##### Send the local file to the fileserver ######
     def commit(self):
 
         if 'a' in self.mode or 'w' in self.mode:
@@ -91,6 +97,8 @@ class File(SpooledTemporaryFile):
         if self.lock_id is not None:
             host, port = utils.get_host_port(_config['lockserver'])
             utils.revoke_lock(self.filepath, host, port, self.lock_id)
+            
+#### Retrieve a file from the cache in the filepath of the file ######
 
     @staticmethod
     def from_cache(filepath):
@@ -112,7 +120,7 @@ class File(SpooledTemporaryFile):
                 else:
                     del File._cache[filepath]
 
-        return None
+        return None  ### The file isn't in the cache or if the cache expired
 
 open = File
 
