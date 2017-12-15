@@ -22,12 +22,17 @@ Built with Python, it contains the following :
 
 # How to run : 
 
-Run : 
-fileserver.py in master 
-rundirectoryserver.py in Tests
-runlockserver.py in Tests
+Run :
+
+°fileserver.py in master.
+
+°rundirectoryserver.py in Tests.
+
+°runlockserver.py in Tests.
+
 then run :
-client.py in master
+
+°client.py in master.
 
 
             
