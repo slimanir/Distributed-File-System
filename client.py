@@ -2,6 +2,13 @@ import utils
 from contextlib import closing
 from http.client import HTTPConnection
 from tempfile import SpooledTemporaryFile
+import web
+
+urls = (
+        '(/.*)', 'client.File',
+       )
+
+app = web.application(urls, globals())
 
 
 ####### Is a distant file, it's stored in memory if it size if less than the max_size parameter, otherwise it's stored on the disk #####
@@ -125,8 +132,14 @@ class File(SpooledTemporaryFile):
 open = File
 
 _config = {
-        'directoryServer': None,
+        'directoryServer':"localhost:8000",
         'max_size': 1024 ** 2,
          } 
 File._cache = {}
 utils.load_config(_config, 'client.dfs.json')
+
+if __name__ == '__main__':
+
+    app.run()
+
+
